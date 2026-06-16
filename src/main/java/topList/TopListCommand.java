@@ -23,9 +23,11 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
     private static final List<String> TUTORIAL_ACTIONS = List.of("create", "spawn", "reload");
     private static final List<String> SIGN_ACTIONS = List.of("give", "reload", "list");
     private static final List<String> MANAGEMENT_TARGETS = List.of("topliste", "tutorial", "hologram", "sign", "settings");
+    private static final List<String> CHECK_ACTIONS = List.of("update");
     private static final String PERMISSION_ADMIN = "topliste.admin";
     private static final String PERMISSION_WILDCARD = "topliste.*";
     private static final String PERMISSION_MANAGEMENT = "topliste.management";
+    private static final String PERMISSION_UPDATE = "topliste.update";
 
     private final TopListManager manager;
     private final TopListManagementGui managementGui;
@@ -36,6 +38,7 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
     private final ManagementHubGui managementHubGui;
     private final CollectibleSignService signService;
     private final SignManagementGui signManagementGui;
+    private final UpdateChecker updateChecker;
 
     TopListCommand(
             TopListManager manager,
@@ -46,7 +49,8 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
             TutorialManagementGui freeHologramGui,
             ManagementHubGui managementHubGui,
             CollectibleSignService signService,
-            SignManagementGui signManagementGui
+            SignManagementGui signManagementGui,
+            UpdateChecker updateChecker
     ) {
         this.manager = manager;
         this.managementGui = managementGui;
@@ -57,12 +61,18 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
         this.managementHubGui = managementHubGui;
         this.signService = signService;
         this.signManagementGui = signManagementGui;
+        this.updateChecker = updateChecker;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length >= 1 && "management".equalsIgnoreCase(args[0])) {
             openManagement(sender, args);
+            return true;
+        }
+
+        if (args.length >= 1 && "check".equalsIgnoreCase(args[0])) {
+            handleCheck(sender, args);
             return true;
         }
 
@@ -130,6 +140,13 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
             return List.of();
         }
 
+        if ("check".equalsIgnoreCase(args[0])) {
+            if (args.length == 2 && hasUpdatePermission(sender)) {
+                return partial(CHECK_ACTIONS, args[1]);
+            }
+            return List.of();
+        }
+
         if ("tutorial".equalsIgnoreCase(args[0])) {
             return tutorialSuggestions(sender, args);
         }
@@ -182,6 +199,19 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
             case "settings", "einstellungen" -> managementHubGui.openSettings(player);
             default -> send(sender, settings().message("management-usage"));
         }
+    }
+
+    private void handleCheck(CommandSender sender, String[] args) {
+        if (args.length < 2 || !"update".equalsIgnoreCase(args[1])) {
+            send(sender, "&cNutzung: /topliste check update");
+            return;
+        }
+        if (!hasUpdatePermission(sender)) {
+            send(sender, settings().message("no-permission"));
+            return;
+        }
+
+        updateChecker.checkNow(sender);
     }
 
     private void handleTutorial(CommandSender sender, String[] args) {
@@ -595,6 +625,9 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
         if (hasAnySignPermission(sender)) {
             suggestions.add("sign");
         }
+        if (hasUpdatePermission(sender)) {
+            suggestions.add("check");
+        }
         for (TopListType type : TopListType.values()) {
             if (hasAnyTypePermission(sender, type)) {
                 suggestions.add(type.argument());
@@ -829,6 +862,12 @@ final class TopListCommand implements CommandExecutor, TabCompleter {
         return sender.hasPermission(PERMISSION_ADMIN)
                 || sender.hasPermission(PERMISSION_WILDCARD)
                 || sender.hasPermission(PERMISSION_MANAGEMENT);
+    }
+
+    private boolean hasUpdatePermission(CommandSender sender) {
+        return sender.hasPermission(PERMISSION_ADMIN)
+                || sender.hasPermission(PERMISSION_WILDCARD)
+                || sender.hasPermission(PERMISSION_UPDATE);
     }
 
     private boolean hasTutorialPermission(CommandSender sender, String action) {

@@ -1,10 +1,7 @@
 # TopList Update-Prüfung
-# latest.txt liegt im GitHub-Repository und kann dort bearbeitet werden.
-# Format:
-# version=1.0
-# Modrinth=https://modrinth.com/plugin/dein-plugin
-# PaperMC=https://hangar.papermc.io/dein/name
-# SpigotMC=https://www.spigotmc.org/resources/dein-plugin.12345/
+# BITTE ÄNDERE HIER REIN GARNICHTS, WENN GEÄNDERT WIRD = PLUGIN WIRD KAPUTT GEHEN!
+# NUR "TRUE / FALSE" VALUES ÄNDERN!
+
 config-version: 1
 
 enabled: true
@@ -21,6 +18,8 @@ download-url: "https://github.com/juli22292/toplist-plugin/releases/latest"
 
 messages:
   checking: "Suche nach TopList Updates..."
+  already-running: "Es läuft bereits eine TopList Update-Prüfung."
+  disabled: "Die TopList Update-Prüfung ist deaktiviert."
   connection-failed: "Es sieht so aus als ob du eine Instabile Internetverbindung hast..."
   no-update: "Keine Neuere Version gefunden, du bist auf der aktuellsten!"
   update-available:

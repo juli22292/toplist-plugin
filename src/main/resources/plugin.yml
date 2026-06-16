@@ -19,7 +19,7 @@ commands:
   topliste:
     description: Verwaltet Toplisten, Hologramme und LAdvancement-Schilder.
     aliases: [toplist]
-    usage: /topliste <management|tutorial|hologram|sign|money|playtime|kills|walked|mined> <...>
+    usage: /topliste <management|check|tutorial|hologram|sign|money|playtime|kills|walked|mined> <...>
   ladvancement:
     description: Öffnet die Sammlung der gefundenen Schilder.
     usage: /ladvancement
@@ -34,6 +34,7 @@ permissions:
       topliste.hologram.*: true
       topliste.sign.*: true
       topliste.ladvancement: true
+      topliste.update: true
       topliste.money.*: true
       topliste.playtime.*: true
       topliste.kills.*: true
@@ -48,6 +49,7 @@ permissions:
       topliste.hologram.*: true
       topliste.sign.*: true
       topliste.ladvancement: true
+      topliste.update: true
       topliste.playtime.*: true
       topliste.kills.*: true
       topliste.walked.*: true
@@ -58,6 +60,9 @@ permissions:
   topliste.ladvancement:
     description: Erlaubt /ladvancement.
     default: true
+  topliste.update:
+    description: Erlaubt /topliste check update.
+    default: op
   topliste.sign.*:
     description: Erlaubt alle LAdvancement-Schild-Befehle.
     default: op

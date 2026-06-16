@@ -36,6 +36,11 @@ latest-url: "https://raw.githubusercontent.com/juli22292/toplist-plugin/main/lat
 ```
 
 Wenn `latest.txt` eine höhere Version enthält als die installierte Plugin-Version, werden Console und berechtigte Admins informiert.
+Manuell kann die Prüfung mit folgendem Befehl gestartet werden:
+
+```txt
+/topliste check update
+```
 
 Beispiel für `latest.txt`:
 

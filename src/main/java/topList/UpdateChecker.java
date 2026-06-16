@@ -5,6 +5,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -16,7 +17,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +46,15 @@ final class UpdateChecker implements Listener {
             plugin.saveResource("updates.yml", false);
         }
         config = YamlConfiguration.loadConfiguration(file);
+        try (InputStream inputStream = plugin.getResource("updates.yml")) {
+            if (inputStream != null) {
+                try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+                    config.setDefaults(YamlConfiguration.loadConfiguration(reader));
+                }
+            }
+        } catch (IOException exception) {
+            plugin.getLogger().warning("updates.yml Defaults konnten nicht geladen werden: " + exception.getMessage());
+        }
     }
 
     void start() {
@@ -52,7 +64,15 @@ final class UpdateChecker implements Listener {
 
         long intervalTicks = Math.max(60L, config.getLong("check-interval-seconds", 7200L)) * 20L;
         long firstDelay = config.getBoolean("check-on-startup", true) ? 40L : intervalTicks;
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> check(false), firstDelay, intervalTicks);
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> check(null), firstDelay, intervalTicks);
+    }
+
+    void checkNow(CommandSender sender) {
+        if (!enabled()) {
+            sender.sendMessage(component(config.getString("messages.disabled", "Die TopList Update-Prüfung ist deaktiviert.")));
+            return;
+        }
+        check(sender);
     }
 
     @EventHandler
@@ -73,12 +93,18 @@ final class UpdateChecker implements Listener {
         }
     }
 
-    private void check(boolean manual) {
+    private void check(CommandSender requester) {
+        boolean manual = requester != null;
         if (checkRunning) {
+            if (manual) {
+                requester.sendMessage(component(config.getString("messages.already-running", "Es läuft bereits eine TopList Update-Prüfung.")));
+            }
             return;
         }
 
-        if (config.getBoolean("notify-console", true)) {
+        if (manual) {
+            requester.sendMessage(component(config.getString("messages.checking", "Suche nach TopList Updates...")));
+        } else if (config.getBoolean("notify-console", true)) {
             Bukkit.getConsoleSender().sendMessage(component(config.getString("messages.checking", "Suche nach TopList Updates...")));
         }
 
@@ -88,7 +114,7 @@ final class UpdateChecker implements Listener {
             lastResult = result;
             checkRunning = false;
 
-            Bukkit.getScheduler().runTask(plugin, () -> handleResult(result, manual));
+            Bukkit.getScheduler().runTask(plugin, () -> handleResult(result, requester));
         });
     }
 
@@ -120,24 +146,26 @@ final class UpdateChecker implements Listener {
         }
     }
 
-    private void handleResult(UpdateResult result, boolean manual) {
+    private void handleResult(UpdateResult result, CommandSender requester) {
+        boolean manual = requester != null;
         if (!result.success()) {
-            if (config.getBoolean("notify-console", true)) {
-                Bukkit.getConsoleSender().sendMessage(component(config.getString(
-                        "messages.connection-failed",
-                        "Es sieht so aus als ob du eine Instabile Internetverbindung hast..."
-                )));
-            }
+            sendResultMessage(requester, config.getString(
+                    "messages.connection-failed",
+                    "Es sieht so aus als ob du eine Instabile Internetverbindung hast..."
+            ));
             return;
         }
 
         if (!result.updateAvailable()) {
-            if (config.getBoolean("notify-console", true)) {
-                Bukkit.getConsoleSender().sendMessage(component(config.getString(
-                        "messages.no-update",
-                        "Keine Neuere Version gefunden, du bist auf der aktuellsten!"
-                )));
-            }
+            sendResultMessage(requester, config.getString(
+                    "messages.no-update",
+                    "Keine Neuere Version gefunden, du bist auf der aktuellsten!"
+            ));
+            return;
+        }
+
+        if (manual) {
+            notifySender(requester, result);
             return;
         }
 
@@ -150,6 +178,23 @@ final class UpdateChecker implements Listener {
             if (player.hasPermission(permission) || player.hasPermission("topliste.*")) {
                 notifyPlayer(player, result);
             }
+        }
+    }
+
+    private void sendResultMessage(CommandSender requester, String message) {
+        if (requester != null) {
+            requester.sendMessage(component(message));
+            return;
+        }
+        if (config.getBoolean("notify-console", true)) {
+            Bukkit.getConsoleSender().sendMessage(component(message));
+        }
+    }
+
+    private void notifySender(CommandSender sender, UpdateResult result) {
+        boolean clickable = sender instanceof Player;
+        for (String line : config.getStringList("messages.update-available")) {
+            sender.sendMessage(renderLine(line, result, clickable));
         }
     }
 

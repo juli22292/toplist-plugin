@@ -87,7 +87,7 @@ public final class TopList extends JavaPlugin {
             return;
         }
 
-        TopListCommand topListCommand = new TopListCommand(topListManager, managementGui, tutorialHologramService, tutorialManagementGui, freeHologramService, freeHologramGui, managementHubGui, collectibleSignService, signManagementGui);
+        TopListCommand topListCommand = new TopListCommand(topListManager, managementGui, tutorialHologramService, tutorialManagementGui, freeHologramService, freeHologramGui, managementHubGui, collectibleSignService, signManagementGui, updateChecker);
         command.setExecutor(topListCommand);
         command.setTabCompleter(topListCommand);
 
