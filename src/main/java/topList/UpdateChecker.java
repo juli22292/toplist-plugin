@@ -1,6 +1,7 @@
 package topList;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -19,6 +20,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 final class UpdateChecker implements Listener {
@@ -43,10 +46,13 @@ final class UpdateChecker implements Listener {
     }
 
     void start() {
-        if (!enabled() || !config.getBoolean("check-on-startup", true)) {
+        if (!enabled()) {
             return;
         }
-        Bukkit.getScheduler().runTaskLater(plugin, () -> check(false), 40L);
+
+        long intervalTicks = Math.max(60L, config.getLong("check-interval-seconds", 7200L)) * 20L;
+        long firstDelay = config.getBoolean("check-on-startup", true) ? 40L : intervalTicks;
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> check(false), firstDelay, intervalTicks);
     }
 
     @EventHandler
@@ -70,6 +76,10 @@ final class UpdateChecker implements Listener {
     private void check(boolean manual) {
         if (checkRunning) {
             return;
+        }
+
+        if (config.getBoolean("notify-console", true)) {
+            Bukkit.getConsoleSender().sendMessage(component(config.getString("messages.checking", "Suche nach TopList Updates...")));
         }
 
         checkRunning = true;
@@ -99,16 +109,11 @@ final class UpdateChecker implements Listener {
             }
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                String latest = reader.lines()
-                        .map(String::trim)
-                        .filter(line -> !line.isEmpty())
-                        .filter(line -> !line.startsWith("#"))
-                        .findFirst()
-                        .orElse("");
-                if (latest.isBlank()) {
+                UpdateInfo updateInfo = parseUpdateInfo(reader.lines().toList());
+                if (updateInfo.latest().isBlank()) {
                     return UpdateResult.failed(current, "latest.txt ist leer");
                 }
-                return new UpdateResult(current, latest, compareVersions(latest, current) > 0, null);
+                return new UpdateResult(current, updateInfo.latest(), compareVersions(updateInfo.latest(), current) > 0, null, updateInfo.sources());
             }
         } catch (IllegalArgumentException | IOException exception) {
             return UpdateResult.failed(current, exception.getMessage());
@@ -117,22 +122,27 @@ final class UpdateChecker implements Listener {
 
     private void handleResult(UpdateResult result, boolean manual) {
         if (!result.success()) {
-            if (manual || config.getBoolean("notify-console", true)) {
-                plugin.getLogger().warning(configMessage("messages.check-failed", result)
-                        .replace("{error}", result.error() == null ? "Unbekannter Fehler" : result.error()));
+            if (config.getBoolean("notify-console", true)) {
+                Bukkit.getConsoleSender().sendMessage(component(config.getString(
+                        "messages.connection-failed",
+                        "Es sieht so aus als ob du eine Instabile Internetverbindung hast..."
+                )));
             }
             return;
         }
 
         if (!result.updateAvailable()) {
-            if (manual || config.getBoolean("log-up-to-date", false)) {
-                plugin.getLogger().info(configMessage("messages.up-to-date", result));
+            if (config.getBoolean("notify-console", true)) {
+                Bukkit.getConsoleSender().sendMessage(component(config.getString(
+                        "messages.no-update",
+                        "Keine Neuere Version gefunden, du bist auf der aktuellsten!"
+                )));
             }
             return;
         }
 
         if (config.getBoolean("notify-console", true)) {
-            plugin.getLogger().warning(configMessage("messages.console-update", result));
+            notifyConsole(result);
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -144,15 +154,99 @@ final class UpdateChecker implements Listener {
     }
 
     private void notifyPlayer(Player player, UpdateResult result) {
-        player.sendMessage(component(configMessage("messages.player-update", result)));
+        for (String line : config.getStringList("messages.update-available")) {
+            player.sendMessage(renderLine(line, result, true));
+        }
     }
 
-    private String configMessage(String path, UpdateResult result) {
-        String message = config.getString(path, "");
+    private void notifyConsole(UpdateResult result) {
+        for (String line : config.getStringList("messages.update-available")) {
+            Bukkit.getConsoleSender().sendMessage(renderLine(line, result, false));
+        }
+    }
+
+    private Component renderLine(String line, UpdateResult result, boolean clickable) {
+        String message = placeholders(line, result);
+        Component output = Component.empty();
+        int cursor = 0;
+        int placeholderIndex;
+        while ((placeholderIndex = message.indexOf("{downloads}", cursor)) >= 0) {
+            output = output.append(component(message.substring(cursor, placeholderIndex)));
+            output = output.append(downloads(result, clickable));
+            cursor = placeholderIndex + "{downloads}".length();
+        }
+        output = output.append(component(message.substring(cursor)));
+        return output.decoration(TextDecoration.ITALIC, false);
+    }
+
+    private String placeholders(String message, UpdateResult result) {
         return message
                 .replace("{current}", result.current())
                 .replace("{latest}", result.latest())
-                .replace("{download}", config.getString("download-url", ""));
+                .replace("{version}", result.current())
+                .replace("{neue_version}", result.latest())
+                .replace("{neueste_version}", result.latest())
+                .replace("{prefix}", config.getString("prefix", ""));
+    }
+
+    private Component downloads(UpdateResult result, boolean clickable) {
+        List<DownloadSource> sources = result.sources();
+        if (sources.isEmpty()) {
+            String fallback = config.getString("download-url", "");
+            return component("&9" + (fallback.isBlank() ? "GitHub" : fallback));
+        }
+
+        Component output = Component.empty();
+        for (int index = 0; index < sources.size(); index++) {
+            DownloadSource source = sources.get(index);
+            Component name = component("&9" + source.name());
+            if (clickable && !source.url().isBlank()) {
+                name = name.clickEvent(ClickEvent.openUrl(source.url()));
+            }
+            output = output.append(name);
+            if (index + 1 < sources.size()) {
+                output = output.append(component("&7, "));
+            }
+        }
+        return output.decoration(TextDecoration.ITALIC, false);
+    }
+
+    private UpdateInfo parseUpdateInfo(List<String> lines) {
+        String latest = "";
+        List<DownloadSource> sources = new ArrayList<>();
+
+        for (String rawLine : lines) {
+            String line = rawLine.trim();
+            if (line.isEmpty() || line.startsWith("#")) {
+                continue;
+            }
+
+            int separator = line.indexOf('=');
+            if (separator > 0) {
+                String key = line.substring(0, separator).trim();
+                String value = line.substring(separator + 1).trim();
+                if (isVersionKey(key)) {
+                    latest = value;
+                } else {
+                    sources.add(new DownloadSource(key, value));
+                }
+                continue;
+            }
+
+            if (latest.isBlank()) {
+                latest = line;
+            }
+        }
+
+        return new UpdateInfo(latest, List.copyOf(sources));
+    }
+
+    private boolean isVersionKey(String key) {
+        String normalized = key.toLowerCase(Locale.ROOT);
+        return normalized.equals("version")
+                || normalized.equals("latest")
+                || normalized.equals("latest-version")
+                || normalized.equals("neueste-version");
     }
 
     private boolean enabled() {
@@ -160,7 +254,14 @@ final class UpdateChecker implements Listener {
     }
 
     private Component component(String text) {
-        return LEGACY.deserialize(text == null ? "" : text).decoration(TextDecoration.ITALIC, false);
+        String value = text == null ? "" : text;
+        boolean strikeout = value.contains("<strikeout>");
+        value = value.replace("<strikeout>", "").replace("</strikeout>", "");
+        Component component = LEGACY.deserialize(value).decoration(TextDecoration.ITALIC, false);
+        if (strikeout) {
+            component = component.decoration(TextDecoration.STRIKETHROUGH, true);
+        }
+        return component;
     }
 
     private int compareVersions(String left, String right) {
@@ -205,10 +306,16 @@ final class UpdateChecker implements Listener {
         return Integer.parseInt(number.toString());
     }
 
-    private record UpdateResult(String current, String latest, boolean updateAvailable, String error) {
+    private record UpdateInfo(String latest, List<DownloadSource> sources) {
+    }
+
+    private record DownloadSource(String name, String url) {
+    }
+
+    private record UpdateResult(String current, String latest, boolean updateAvailable, String error, List<DownloadSource> sources) {
 
         static UpdateResult failed(String current, String error) {
-            return new UpdateResult(current, "", false, error);
+            return new UpdateResult(current, "", false, error, List.of());
         }
 
         boolean success() {

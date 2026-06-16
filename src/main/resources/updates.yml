@@ -1,20 +1,34 @@
 # TopList Update-Prüfung
-# latest.txt muss im GitHub-Repository die neueste Version enthalten, z. B. nur: 1.0
+# latest.txt liegt im GitHub-Repository und kann dort bearbeitet werden.
+# Format:
+# version=1.0
+# Modrinth=https://modrinth.com/plugin/dein-plugin
+# PaperMC=https://hangar.papermc.io/dein/name
+# SpigotMC=https://www.spigotmc.org/resources/dein-plugin.12345/
 config-version: 1
 
 enabled: true
 check-on-startup: true
 check-on-join: true
+check-interval-seconds: 7200
 notify-console: true
-log-up-to-date: false
 notify-permission: "topliste.admin"
 timeout-millis: 5000
 
+prefix: "&8[&aTopList&8] "
 latest-url: "https://raw.githubusercontent.com/juli22292/toplist-plugin/main/latest.txt"
 download-url: "https://github.com/juli22292/toplist-plugin/releases/latest"
 
 messages:
-  console-update: "Neue TopList-Version verfügbar: {latest} (installiert: {current}) Download: {download}"
-  player-update: "&8[&aTopList&8] &eNeue Version verfügbar: &a{latest} &7(installiert: &f{current}&7) &8- &f{download}"
-  up-to-date: "TopList ist aktuell ({current})."
-  check-failed: "TopList Update-Prüfung fehlgeschlagen: {error}"
+  checking: "Suche nach TopList Updates..."
+  connection-failed: "Es sieht so aus als ob du eine Instabile Internetverbindung hast..."
+  no-update: "Keine Neuere Version gefunden, du bist auf der aktuellsten!"
+  update-available:
+    - "{prefix}&7Eine neue Version von TopList ist verfügbar!"
+    - "{prefix}&7Aktuell nutzt du die Version &c{version}&7."
+    - "{prefix}&7Es wird empfohlen, die neueste &a{neue_version} &7Version von diesen Quellen zu installieren:&r"
+    - "&8<strikeout>-------------------------------------------------&r"
+    - "&f-> &7Installiert&8: {version}"
+    - "&f-> &7Neueste&8: {neueste_version}"
+    - "&f-> &7Download&8: {downloads}"
+    - "&8<strikeout>-------------------------------------------------&r"

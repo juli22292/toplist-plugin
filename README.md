@@ -28,7 +28,7 @@ Optionale Integrationen:
 
 ## Update-Prüfung
 
-Die Datei `latest.txt` im Repository enthält die neueste Plugin-Version.
+Die Datei `latest.txt` im Repository enthält die neueste Plugin-Version und die Download-Links.
 Das Plugin liest die URL aus `updates.yml`:
 
 ```yaml
@@ -36,6 +36,15 @@ latest-url: "https://raw.githubusercontent.com/juli22292/toplist-plugin/main/lat
 ```
 
 Wenn `latest.txt` eine höhere Version enthält als die installierte Plugin-Version, werden Console und berechtigte Admins informiert.
+
+Beispiel für `latest.txt`:
+
+```txt
+version=1.1
+Modrinth=https://modrinth.com/plugin/toplist-plugin
+PaperMC=https://hangar.papermc.io/juli22292/TopList
+SpigotMC=https://www.spigotmc.org/resources/toplist-plugin.00000/
+```
 
 ## Build
 
