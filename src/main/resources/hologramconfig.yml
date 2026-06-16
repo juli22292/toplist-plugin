@@ -1,0 +1,56 @@
+settings:
+  save-folder: "freiehologramme"
+  fancy-name-prefix: "free_"
+
+hologram:
+  fixed-rotation: true
+  visibility-distance: 64
+  # Wird nur genutzt, wenn fixed-rotation false ist.
+  billboard: "CENTER"
+  text-alignment: "CENTER"
+  text-shadow: true
+  see-through: false
+  double-sided: false
+
+holograms:
+  standard:
+    display-name: "&a&lStandard Hologramm"
+    icon: "OAK_SIGN"
+    lines:
+      - "&a&lNeues Hologramm"
+      - "&7Bearbeite diese Zeilen in der &fhologramconfig.yml&7."
+      - "&8Farbcodes wie &a&a &8funktionieren."
+
+  info:
+    display-name: "&b&lInfo Hologramm"
+    icon: "PAPER"
+    lines:
+      - "&b&lInformation"
+      - "&7Hier kannst du freie Texte anzeigen."
+      - "&7Nutze &e/topliste management hologram&7."
+
+  discord:
+    display-name: "&9&lDiscord Hologramm"
+    icon: "AMETHYST_SHARD"
+    lines:
+      - "&9&lDiscord"
+      - "&7Tritt unserem Discord bei:"
+      - "&fdiscord.gg/deinserver"
+
+messages:
+  prefix: "&8[&aTopList&8] &7"
+  usage: "{prefix}&7Benutzung: &e/toplist hologram <create|spawn|reload> <vorlage|hologramm|all> [hologramm_name]"
+  create-usage: "{prefix}&7Benutzung: &e/toplist hologram create <vorlage> [hologramm_name]"
+  spawn-usage: "{prefix}&7Benutzung: &e/toplist hologram spawn <vorlage|hologramm> [hologramm_name]"
+  invalid-name: "{prefix}&cDer Name darf nur Buchstaben, Zahlen, _ und - enthalten."
+  template-not-found: "{prefix}&cIn der hologramconfig.yml gibt es keine passende Hologramm-Vorlage für &e{name}&c."
+  already-exists: "{prefix}&cDas freie Hologramm &e{name} &cexistiert bereits."
+  not-found: "{prefix}&cDas freie Hologramm &e{name} &cwurde nicht gefunden."
+  created: "{prefix}&aFreies Hologramm &e{name} &awurde an deiner Position erstellt."
+  spawned: "{prefix}&aFreies Hologramm &e{name} &awurde gespawnt oder aktualisiert."
+  reloaded: "{prefix}&aHologramconfig und freie Hologramme wurden neu geladen."
+  reloaded-one: "{prefix}&aFreies Hologramm &e{name} &awurde aus der hologramconfig.yml neu geladen."
+  deleted: "{prefix}&cFreies Hologramm &e{name} &cwurde gelöscht."
+  teleported-to-hologram: "{prefix}&aDu wurdest zu &e{name} &ateleportiert."
+  hologram-teleported-here: "{prefix}&aFreies Hologramm &e{name} &awurde zu dir teleportiert."
+  preview-header: "{prefix}&7Vorschau von &e{name}&7:"

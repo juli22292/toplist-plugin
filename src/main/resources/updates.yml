@@ -1,0 +1,20 @@
+# TopList Update-Prüfung
+# latest.txt muss im GitHub-Repository die neueste Version enthalten, z. B. nur: 1.0
+config-version: 1
+
+enabled: true
+check-on-startup: true
+check-on-join: true
+notify-console: true
+log-up-to-date: false
+notify-permission: "topliste.admin"
+timeout-millis: 5000
+
+latest-url: "https://raw.githubusercontent.com/juli22292/toplist-plugin/main/latest.txt"
+download-url: "https://github.com/juli22292/toplist-plugin/releases/latest"
+
+messages:
+  console-update: "Neue TopList-Version verfügbar: {latest} (installiert: {current}) Download: {download}"
+  player-update: "&8[&aTopList&8] &eNeue Version verfügbar: &a{latest} &7(installiert: &f{current}&7) &8- &f{download}"
+  up-to-date: "TopList ist aktuell ({current})."
+  check-failed: "TopList Update-Prüfung fehlgeschlagen: {error}"

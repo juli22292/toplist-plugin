@@ -1,0 +1,39 @@
+database:
+  enabled: false
+  # Optional: Wenn gesetzt, wird host/port/database/parameters ignoriert.
+  jdbc-url: ""
+  host: "127.0.0.1"
+  port: 3306
+  database: "minecraft"
+  username: "root"
+  password: ""
+  parameters: "useSSL=false&characterEncoding=utf8&serverTimezone=UTC"
+
+# Datenbank-Toplisten sind nur für Statistik-Listen gedacht.
+# Money bleibt über Vault, Playtime bleibt über Bukkit/EssentialsX-Statistik.
+#
+# Query-Regeln:
+# - Die Query muss player_name, uuid und value liefern, oder die Spaltennamen unten anpassen.
+# - Wenn die Query ein ? enthält, setzt TopList dort automatisch max-entries ein.
+# - Sortierung sollte direkt in SQL passieren: ORDER BY <wert> DESC.
+leaderboards:
+  kills:
+    enabled: true
+    query: "SELECT player_name, uuid, kills AS value FROM player_statistics ORDER BY kills DESC LIMIT ?"
+    name-column: "player_name"
+    uuid-column: "uuid"
+    value-column: "value"
+
+  walked:
+    enabled: true
+    query: "SELECT player_name, uuid, walked_blocks AS value FROM player_statistics ORDER BY walked_blocks DESC LIMIT ?"
+    name-column: "player_name"
+    uuid-column: "uuid"
+    value-column: "value"
+
+  mined:
+    enabled: true
+    query: "SELECT player_name, uuid, mined_blocks AS value FROM player_statistics ORDER BY mined_blocks DESC LIMIT ?"
+    name-column: "player_name"
+    uuid-column: "uuid"
+    value-column: "value"

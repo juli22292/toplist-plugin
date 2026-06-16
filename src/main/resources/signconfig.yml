@@ -1,0 +1,75 @@
+gui:
+  title: "&8LAdvancement Schilder"
+
+item:
+  name: "&6Sammel-Schild: &e{name}"
+  lore:
+    - "&7Platziere dieses Schild in der Welt."
+    - "&7Spieler können es einmalig sammeln."
+    - ""
+    - "&8Vorlage: &f{id}"
+
+reward:
+  enabled: false
+  amount: "100"
+  command: "economy give {spieler} {amount}"
+
+signs:
+  spawn:
+    display-name: "&aSpawn Entdecker"
+    material: "OAK_SIGN"
+    reward-amount: "100"
+    gui-lore:
+      - "&7Dieses Schild findet man am Spawn."
+      - "&7Ein guter Start für jede Sammlung."
+    lines:
+      - "&a&lSpawn"
+      - "&7Klicke mich,"
+      - "&7um mich zu"
+      - "&esammeln&7!"
+
+  farmwelt:
+    display-name: "&2Farmwelt Finder"
+    material: "SPRUCE_SIGN"
+    reward-amount: "250"
+    gui-lore:
+      - "&7Für Spieler, die die Farmwelt"
+      - "&7zum ersten Mal besuchen."
+    lines:
+      - "&2&lFarmwelt"
+      - "&7Ressourcen warten"
+      - "&7auf dich."
+      - "&a+ Sammlung"
+
+  geheimnis:
+    display-name: "&5Geheimes Schild"
+    material: "DARK_OAK_SIGN"
+    reward-amount: "500"
+    gui-lore:
+      - "&7Ein verstecktes Schild für"
+      - "&7neugierige Spieler."
+    lines:
+      - "&5&lGeheimnis"
+      - "&7Du hast mich"
+      - "&7gefunden."
+      - "&dRespekt!"
+
+messages:
+  prefix: "&8[&aTopList&8] &7"
+  no-permission: "{prefix}&cDazu hast du keine Rechte."
+  player-only: "{prefix}&cDieser Befehl kann nur als Spieler ausgeführt werden."
+  usage: "{prefix}&7Benutzung: &e/topliste sign <give|reload|list> <...>"
+  give-usage: "{prefix}&7Benutzung: &e/topliste sign give <schild> [spieler] [anzahl]"
+  invalid-amount: "{prefix}&cDie Anzahl muss eine Zahl zwischen 1 und 64 sein."
+  target-not-found: "{prefix}&cDer Spieler &e{player} &cwurde nicht gefunden."
+  template-not-found: "{prefix}&cDas Sammel-Schild &e{name} &cwurde in der signconfig.yml nicht gefunden."
+  given: "{prefix}&aDu hast &e{amount}x {name} &aan &e{player} &agegeben."
+  received: "{prefix}&aDu hast &e{amount}x {name} &aerhalten."
+  placed: "{prefix}&aSammel-Schild &e{name} &awurde platziert."
+  collected: "{prefix}&aDu hast &e{name} &agesammelt. &7(&a{collected}&7/&f{total}&7)"
+  already-collected: "{prefix}&eDu hast dieses Schild schon gesammelt."
+  reward: "{prefix}&aDu hast &e{amount}$ &aals Belohnung erhalten."
+  reloaded: "{prefix}&aSignconfig und Sammel-Schilder wurden neu geladen."
+  list-empty: "{prefix}&7Es gibt noch keine Sammel-Schilder in der signconfig.yml."
+  list-header: "{prefix}&7Sammel-Schilder:"
+  list-entry: "&8- &e{id} &7-> {name} &8(&a{amount}$&8)"

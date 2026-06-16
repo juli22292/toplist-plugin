@@ -1,0 +1,167 @@
+﻿settings:
+  include-offline-players: true
+
+hologram:
+  fixed-rotation: true
+  visibility-distance: 64
+  # Wird nur genutzt, wenn fixed-rotation false ist.
+  billboard: "CENTER"
+  text-alignment: "CENTER"
+  text-shadow: true
+  see-through: false
+  double-sided: false
+
+leaderboards:
+  money:
+    save-folder: "moneyhologramme"
+    fancy-name-prefix: "topliste_money_"
+    update-interval-seconds: 60
+    show-update-timer: true
+    max-entries: 20
+    include-offline-players: true
+    require-economy-account: true
+    hide-zero-values: true
+    show-empty-ranks: true
+    player-name-fallback: "Unbekannt"
+    balance-decimal-format: "#,##0.00"
+    use-vault-format: false
+    placeholderapi:
+      enabled: true
+      value-placeholder: ""
+      parse-entry-line: true
+    lines:
+      - "&6&lTop Geld"
+      - "&7Die reichsten Spieler"
+      - ""
+      - "{entries}"
+    entry-line: "&a#{platz} &e{spieler} &fhat &a{betrag}$&8."
+    empty-line: "&8#{platz} &7-"
+    no-data-line: "&cKeine Statistiken für Spieler gefunden."
+    timer-line: "&7Aktualisieren in &e{time}"
+
+  playtime:
+    save-folder: "playtimehologramme"
+    fancy-name-prefix: "topliste_playtime_"
+    update-interval-seconds: 60
+    show-update-timer: true
+    max-entries: 20
+    include-offline-players: true
+    hide-zero-values: true
+    show-empty-ranks: true
+    player-name-fallback: "Unbekannt"
+    value-format: "{days}d {hours}h {minutes}m"
+    placeholderapi:
+      enabled: true
+      value-placeholder: ""
+      parse-entry-line: true
+    lines:
+      - "&b&lTop Spielzeit"
+      - "&7Die aktivsten Spieler"
+      - ""
+      - "{entries}"
+    entry-line: "&a#{platz} &e{spieler} &fhat &b{playtime}&8."
+    empty-line: "&8#{platz} &7-"
+    no-data-line: "&cKeine Statistiken für Spieler gefunden."
+    timer-line: "&7Aktualisieren in &e{time}"
+
+  kills:
+    save-folder: "killshologramme"
+    fancy-name-prefix: "topliste_kills_"
+    update-interval-seconds: 60
+    show-update-timer: true
+    max-entries: 20
+    include-offline-players: true
+    hide-zero-values: true
+    show-empty-ranks: true
+    player-name-fallback: "Unbekannt"
+    balance-decimal-format: "#,##0"
+    placeholderapi:
+      enabled: true
+      value-placeholder: ""
+      parse-entry-line: true
+    lines:
+      - "&c&lTop Kills"
+      - "&7Die meisten Spieler-Kills"
+      - ""
+      - "{entries}"
+    entry-line: "&a#{platz} &e{spieler} &fhat &c{kills} Kills&8."
+    empty-line: "&8#{platz} &7-"
+    no-data-line: "&cKeine Statistiken für Spieler gefunden."
+    timer-line: "&7Aktualisieren in &e{time}"
+
+  walked:
+    save-folder: "walkedhologramme"
+    fancy-name-prefix: "topliste_walked_"
+    update-interval-seconds: 60
+    show-update-timer: true
+    max-entries: 20
+    include-offline-players: true
+    hide-zero-values: true
+    show-empty-ranks: true
+    player-name-fallback: "Unbekannt"
+    balance-decimal-format: "#,##0"
+    placeholderapi:
+      enabled: true
+      value-placeholder: ""
+      parse-entry-line: true
+    lines:
+      - "&a&lTop Gelaufen"
+      - "&7Die meisten gelaufenen Blöcke"
+      - ""
+      - "{entries}"
+    entry-line: "&a#{platz} &e{spieler} &fist &a{walked} Blöcke &fgelaufen&8."
+    empty-line: "&8#{platz} &7-"
+    no-data-line: "&cKeine Statistiken für Spieler gefunden."
+    timer-line: "&7Aktualisieren in &e{time}"
+
+  mined:
+    save-folder: "minedhologramme"
+    fancy-name-prefix: "topliste_mined_"
+    update-interval-seconds: 60
+    show-update-timer: true
+    max-entries: 20
+    include-offline-players: true
+    hide-zero-values: true
+    show-empty-ranks: true
+    player-name-fallback: "Unbekannt"
+    balance-decimal-format: "#,##0"
+    placeholderapi:
+      enabled: true
+      value-placeholder: ""
+      parse-entry-line: true
+    lines:
+      - "&6&lTop Abgebaut"
+      - "&7Die meisten abgebauten Blöcke"
+      - ""
+      - "{entries}"
+    entry-line: "&a#{platz} &e{spieler} &fhat &6{mined} Blöcke &fabgebaut&8."
+    empty-line: "&8#{platz} &7-"
+    no-data-line: "&cKeine Statistiken für Spieler gefunden."
+    timer-line: "&7Aktualisieren in &e{time}"
+
+messages:
+  prefix: "&8[&aTopList&8] &7"
+  no-permission: "{prefix}&cDazu hast du keine Rechte."
+  player-only: "{prefix}&cDieser Befehl kann nur als Spieler ausgeführt werden."
+  usage: "{prefix}&7Benutzung: &e/topliste <management|tutorial|hologram|sign|money|playtime|kills|walked|mined> <...>"
+  management-usage: "{prefix}&7Benutzung: &e/topliste management <topliste|tutorial|hologram|sign|settings>"
+  invalid-type: "{prefix}&cBitte nutze &emanagement&c, &etutorial&c, &ehologram&c, &esign&c, &emoney&c, &eplaytime&c, &ekills&c, &ewalked &coder &emined&c."
+  create-usage: "{prefix}&7Benutzung: &e/topliste {type} create <name>"
+  delete-usage: "{prefix}&7Benutzung: &e/topliste {type} delete <name>"
+  tpo-usage: "{prefix}&7Benutzung: &e/topliste {type} tpo <name>"
+  tph-usage: "{prefix}&7Benutzung: &e/topliste {type} tph <name>"
+  invalid-name: "{prefix}&cDer Name darf nur Buchstaben, Zahlen, _ und - enthalten."
+  already-exists: "{prefix}&cEin {typ}-Hologramm mit diesem Namen existiert bereits."
+  not-found: "{prefix}&cDieses {typ}-Hologramm wurde nicht gefunden."
+  created: "{prefix}&a{typ}-Hologramm &e{name} &awurde erstellt."
+  deleted: "{prefix}&a{typ}-Hologramm &e{name} &awurde gelöscht."
+  reloaded: "{prefix}&aKonfigurationen und Hologramme wurden neu geladen."
+  teleported-to-hologram: "{prefix}&aDu wurdest zu &e{name} &ateleportiert."
+  hologram-teleported-here: "{prefix}&a{typ}-Hologramm &e{name} &awurde zu dir teleportiert."
+  list-empty: "{prefix}&7Es gibt noch keine {typ}-Hologramme."
+  list-header: "{prefix}&7{typ}-Hologramme:"
+  list-entry: "&8- &e{name} &7in &f{world} &8(&f{x}&7, &f{y}&7, &f{z}&8)"
+  test-header: "{prefix}&7Vorschau der {typ}-Topliste:"
+  refreshed: "{prefix}&a{typ}-Topliste wurde aktualisiert."
+  vault-missing: "{prefix}&cVault oder ein Economy-Provider wurde nicht gefunden."
+  holograms-missing: "{prefix}&cFancyHolograms ist nicht verfügbar."

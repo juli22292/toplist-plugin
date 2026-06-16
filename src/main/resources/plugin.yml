@@ -1,0 +1,268 @@
+name: TopList
+description: Vault money and statistic toplists displayed as FancyHolograms.
+version: '${version}'
+
+main: topList.TopList
+api-version: '1.21.11'
+load: POSTWORLD
+
+authors: [ Julian1657 ]
+depend:
+  - Vault
+  - FancyHolograms
+softdepend:
+  - PlaceholderAPI
+  - LuckPerms
+  - Essentials
+  - MySqlPlayerBridge
+commands:
+  topliste:
+    description: Verwaltet Toplisten, Hologramme und LAdvancement-Schilder.
+    aliases: [toplist]
+    usage: /topliste <management|tutorial|hologram|sign|money|playtime|kills|walked|mined> <...>
+  ladvancement:
+    description: Öffnet die Sammlung der gefundenen Schilder.
+    usage: /ladvancement
+permissions:
+  topliste.*:
+    description: Erlaubt alle TopList-Befehle.
+    default: op
+    children:
+      topliste.admin: true
+      topliste.management: true
+      topliste.tutorial.*: true
+      topliste.hologram.*: true
+      topliste.sign.*: true
+      topliste.ladvancement: true
+      topliste.money.*: true
+      topliste.playtime.*: true
+      topliste.kills.*: true
+      topliste.walked.*: true
+      topliste.mined.*: true
+  topliste.admin:
+    description: Erlaubt die vollständige Verwaltung der TopList-Hologramme.
+    default: op
+    children:
+      topliste.money.*: true
+      topliste.tutorial.*: true
+      topliste.hologram.*: true
+      topliste.sign.*: true
+      topliste.ladvancement: true
+      topliste.playtime.*: true
+      topliste.kills.*: true
+      topliste.walked.*: true
+      topliste.mined.*: true
+  topliste.management:
+    description: Erlaubt /topliste management <topliste|tutorial|hologram|sign|settings>.
+    default: op
+  topliste.ladvancement:
+    description: Erlaubt /ladvancement.
+    default: true
+  topliste.sign.*:
+    description: Erlaubt alle LAdvancement-Schild-Befehle.
+    default: op
+    children:
+      topliste.sign.give: true
+      topliste.sign.reload: true
+      topliste.sign.list: true
+  topliste.sign.give:
+    description: Erlaubt /topliste sign give.
+    default: op
+  topliste.sign.reload:
+    description: Erlaubt /topliste sign reload.
+    default: op
+  topliste.sign.list:
+    description: Erlaubt /topliste sign list.
+    default: op
+  topliste.tutorial.*:
+    description: Erlaubt alle Tutorial-Hologramm-Befehle.
+    default: op
+    children:
+      topliste.tutorial.create: true
+      topliste.tutorial.spawn: true
+      topliste.tutorial.reload: true
+  topliste.tutorial.create:
+    description: Erlaubt /toplist tutorial create.
+    default: op
+  topliste.tutorial.spawn:
+    description: Erlaubt /toplist tutorial spawn.
+    default: op
+  topliste.tutorial.reload:
+    description: Erlaubt /toplist tutorial reload.
+    default: op
+  topliste.hologram.*:
+    description: Erlaubt alle freien Hologramm-Befehle.
+    default: op
+    children:
+      topliste.hologram.create: true
+      topliste.hologram.spawn: true
+      topliste.hologram.reload: true
+  topliste.hologram.create:
+    description: Erlaubt /toplist hologram create.
+    default: op
+  topliste.hologram.spawn:
+    description: Erlaubt /toplist hologram spawn.
+    default: op
+  topliste.hologram.reload:
+    description: Erlaubt /toplist hologram reload.
+    default: op
+  topliste.money.*:
+    description: Erlaubt alle Money-Toplisten-Befehle.
+    default: op
+    children:
+      topliste.money.reload: true
+      topliste.money.create: true
+      topliste.money.delete: true
+      topliste.money.tpo: true
+      topliste.money.tph: true
+      topliste.money.test: true
+      topliste.money.list: true
+  topliste.playtime.*:
+    description: Erlaubt alle Playtime-Toplisten-Befehle.
+    default: op
+    children:
+      topliste.playtime.reload: true
+      topliste.playtime.create: true
+      topliste.playtime.delete: true
+      topliste.playtime.tpo: true
+      topliste.playtime.tph: true
+      topliste.playtime.test: true
+      topliste.playtime.list: true
+  topliste.kills.*:
+    description: Erlaubt alle Kills-Toplisten-Befehle.
+    default: op
+    children:
+      topliste.kills.reload: true
+      topliste.kills.create: true
+      topliste.kills.delete: true
+      topliste.kills.tpo: true
+      topliste.kills.tph: true
+      topliste.kills.test: true
+      topliste.kills.list: true
+  topliste.walked.*:
+    description: Erlaubt alle Gelaufen-Toplisten-Befehle.
+    default: op
+    children:
+      topliste.walked.reload: true
+      topliste.walked.create: true
+      topliste.walked.delete: true
+      topliste.walked.tpo: true
+      topliste.walked.tph: true
+      topliste.walked.test: true
+      topliste.walked.list: true
+  topliste.mined.*:
+    description: Erlaubt alle Abgebaut-Toplisten-Befehle.
+    default: op
+    children:
+      topliste.mined.reload: true
+      topliste.mined.create: true
+      topliste.mined.delete: true
+      topliste.mined.tpo: true
+      topliste.mined.tph: true
+      topliste.mined.test: true
+      topliste.mined.list: true
+  topliste.money.reload:
+    description: Erlaubt /topliste money reload.
+    default: op
+  topliste.money.create:
+    description: Erlaubt /topliste money create.
+    default: op
+  topliste.money.delete:
+    description: Erlaubt /topliste money delete.
+    default: op
+  topliste.money.tpo:
+    description: Erlaubt /topliste money tpo.
+    default: op
+  topliste.money.tph:
+    description: Erlaubt /topliste money tph.
+    default: op
+  topliste.money.test:
+    description: Erlaubt /topliste money test.
+    default: op
+  topliste.money.list:
+    description: Erlaubt /topliste money list.
+    default: op
+  topliste.playtime.reload:
+    description: Erlaubt /topliste playtime reload.
+    default: op
+  topliste.playtime.create:
+    description: Erlaubt /topliste playtime create.
+    default: op
+  topliste.playtime.delete:
+    description: Erlaubt /topliste playtime delete.
+    default: op
+  topliste.playtime.tpo:
+    description: Erlaubt /topliste playtime tpo.
+    default: op
+  topliste.playtime.tph:
+    description: Erlaubt /topliste playtime tph.
+    default: op
+  topliste.playtime.test:
+    description: Erlaubt /topliste playtime test.
+    default: op
+  topliste.playtime.list:
+    description: Erlaubt /topliste playtime list.
+    default: op
+  topliste.kills.reload:
+    description: Erlaubt /topliste kills reload.
+    default: op
+  topliste.kills.create:
+    description: Erlaubt /topliste kills create.
+    default: op
+  topliste.kills.delete:
+    description: Erlaubt /topliste kills delete.
+    default: op
+  topliste.kills.tpo:
+    description: Erlaubt /topliste kills tpo.
+    default: op
+  topliste.kills.tph:
+    description: Erlaubt /topliste kills tph.
+    default: op
+  topliste.kills.test:
+    description: Erlaubt /topliste kills test.
+    default: op
+  topliste.kills.list:
+    description: Erlaubt /topliste kills list.
+    default: op
+  topliste.walked.reload:
+    description: Erlaubt /topliste walked reload.
+    default: op
+  topliste.walked.create:
+    description: Erlaubt /topliste walked create.
+    default: op
+  topliste.walked.delete:
+    description: Erlaubt /topliste walked delete.
+    default: op
+  topliste.walked.tpo:
+    description: Erlaubt /topliste walked tpo.
+    default: op
+  topliste.walked.tph:
+    description: Erlaubt /topliste walked tph.
+    default: op
+  topliste.walked.test:
+    description: Erlaubt /topliste walked test.
+    default: op
+  topliste.walked.list:
+    description: Erlaubt /topliste walked list.
+    default: op
+  topliste.mined.reload:
+    description: Erlaubt /topliste mined reload.
+    default: op
+  topliste.mined.create:
+    description: Erlaubt /topliste mined create.
+    default: op
+  topliste.mined.delete:
+    description: Erlaubt /topliste mined delete.
+    default: op
+  topliste.mined.tpo:
+    description: Erlaubt /topliste mined tpo.
+    default: op
+  topliste.mined.tph:
+    description: Erlaubt /topliste mined tph.
+    default: op
+  topliste.mined.test:
+    description: Erlaubt /topliste mined test.
+    default: op
+  topliste.mined.list:
+    description: Erlaubt /topliste mined list.
+    default: op

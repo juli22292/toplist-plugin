@@ -1,0 +1,25 @@
+# Build output
+target/
+*.jar
+dependency-reduced-pom.xml
+
+# Keep source files consistent across systems
+.codex-classes/
+
+# IDE/user files
+.idea/
+*.iml
+
+# Runtime/plugin data
+moneyhologramme/
+playtimehologramme/
+killshologramme/
+walkedhologramme/
+minedhologramme/
+tutorialhologramme/
+freiehologramme/
+signprogress.yml
+
+# OS files
+.DS_Store
+Thumbs.db

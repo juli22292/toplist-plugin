@@ -1,0 +1,51 @@
+settings:
+  save-folder: "tutorialhologramme"
+  fancy-name-prefix: "tutorial_"
+
+hologram:
+  fixed-rotation: true
+  visibility-distance: 64
+  # Wird nur genutzt, wenn fixed-rotation false ist.
+  billboard: "CENTER"
+  text-alignment: "CENTER"
+  text-shadow: true
+  see-through: false
+  double-sided: false
+
+holograms:
+  spawn_hilfe:
+    display-name: "&a&lSpawn Hilfe"
+    icon: "COMPASS"
+    lines:
+      - "&a&lWillkommen auf dem Server"
+      - "&7Nutze &e/spawn &7um jederzeit zurückzukommen."
+      - "&7Mit &e/menu &7öffnest du das Hauptmenü."
+      - ""
+      - "&8Viel Spaß beim Spielen!"
+
+  regeln:
+    display-name: "&c&lServer Regeln"
+    icon: "BOOK"
+    lines:
+      - "&c&lRegeln"
+      - "&7Bitte respektiere andere Spieler."
+      - "&7Kein Griefing, kein Spam und keine Bugs ausnutzen."
+      - "&7Bei Fragen hilft dir das Team."
+
+messages:
+  prefix: "&8[&aTopList&8] &7"
+  usage: "{prefix}&7Benutzung: &e/toplist tutorial <create|spawn|reload> <vorlage|hologramm|all> [hologramm_name]"
+  create-usage: "{prefix}&7Benutzung: &e/toplist tutorial create <vorlage> [hologramm_name]"
+  spawn-usage: "{prefix}&7Benutzung: &e/toplist tutorial spawn <vorlage|hologramm> [hologramm_name]"
+  invalid-name: "{prefix}&cDer Name darf nur Buchstaben, Zahlen, _ und - enthalten."
+  template-not-found: "{prefix}&cIn der tutorialconfig.yml gibt es keine passende Tutorial-Vorlage für &e{name}&c."
+  already-exists: "{prefix}&cDas Tutorial-Hologramm &e{name} &cexistiert bereits."
+  not-found: "{prefix}&cDas Tutorial-Hologramm &e{name} &cwurde nicht gefunden."
+  created: "{prefix}&aTutorial-Hologramm &e{name} &awurde an deiner Position erstellt."
+  spawned: "{prefix}&aTutorial-Hologramm &e{name} &awurde gespawnt oder aktualisiert."
+  reloaded: "{prefix}&aTutorialconfig und Tutorial-Hologramme wurden neu geladen."
+  reloaded-one: "{prefix}&aTutorial-Hologramm &e{name} &awurde aus der tutorialconfig.yml neu geladen."
+  deleted: "{prefix}&cTutorial-Hologramm &e{name} &cwurde gelöscht."
+  teleported-to-hologram: "{prefix}&aDu wurdest zu &e{name} &ateleportiert."
+  hologram-teleported-here: "{prefix}&aTutorial-Hologramm &e{name} &awurde zu dir teleportiert."
+  preview-header: "{prefix}&7Vorschau von &e{name}&7:"
