@@ -430,8 +430,8 @@ final class TopListManagementGui implements Listener {
         boolean hasPrevious = page > 0;
         boolean hasNext = page + 1 < pageCount;
         inventory.setItem(48, item(
-                hasPrevious ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE,
-                hasPrevious ? "&eVorherige Seite" : "&8Keine vorherige Seite",
+                hasPrevious ? Material.ARROW : Material.RED_STAINED_GLASS_PANE,
+                hasPrevious ? "&eVorherige Seite" : "&cKeine vorherige Seite",
                 hasPrevious ? List.of("&7Gehe zu Seite &f" + page + "&7/&f" + pageCount) : List.of()
         ));
         inventory.setItem(49, item(Material.MAP, "&eSeite &f" + (page + 1) + "&7/&f" + pageCount, List.of(
@@ -439,8 +439,8 @@ final class TopListManagementGui implements Listener {
                 "&7die Pfeile daneben angezeigt."
         )));
         inventory.setItem(50, item(
-                hasNext ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE,
-                hasNext ? "&eNächste Seite" : "&8Keine nächste Seite",
+                hasNext ? Material.ARROW : Material.RED_STAINED_GLASS_PANE,
+                hasNext ? "&eNächste Seite" : "&cKeine nächste Seite",
                 hasNext ? List.of("&7Gehe zu Seite &f" + (page + 2) + "&7/&f" + pageCount) : List.of()
         ));
     }
@@ -454,10 +454,11 @@ final class TopListManagementGui implements Listener {
     }
 
     private void fill(Inventory inventory) {
-        ItemStack filler = item(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
-        for (int slot = 0; slot < inventory.getSize(); slot++) {
-            inventory.setItem(slot, filler);
-        }
+        GuiLayout.fill(
+                inventory,
+                item(Material.BLACK_STAINED_GLASS_PANE, " ", List.of()),
+                item(Material.GRAY_STAINED_GLASS_PANE, " ", List.of())
+        );
     }
 
     private ItemStack item(Material material, String name, List<String> lore) {

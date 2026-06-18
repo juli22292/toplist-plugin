@@ -16,12 +16,20 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 final class ManagementHubGui implements Listener {
 
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
     private static final int SIZE = 54;
+    private static final int[] CREATED_SLOTS = {
+            10, 11, 12, 13, 14, 15, 16,
+            19, 20, 21, 22, 23, 24, 25,
+            28, 29, 30, 31, 32, 33, 34,
+            37, 38, 39, 40, 41, 42, 43
+    };
 
     private final TopListManager topListManager;
     private final TutorialHologramService tutorialHologramService;
@@ -65,6 +73,13 @@ final class ManagementHubGui implements Listener {
         inventory.setItem(4, item(Material.NETHER_STAR, "&a&lManagement", List.of(
                 "&7Wähle aus, welchen Bereich du verwalten möchtest."
         )));
+        inventory.setItem(13, item(Material.ARMOR_STAND, "&eErstellte Hologramme", List.of(
+                "&7Zeigt alle platzierten Toplisten-,",
+                "&7Tutorial- und freien Hologramme.",
+                "&7Erstellt: &f" + createdEntries().size(),
+                "",
+                "&8Klick: Übersicht öffnen"
+        )));
         inventory.setItem(19, item(Material.BEACON, "&aToplisten", List.of(
                 "&7Money, Playtime, Kills, Gelaufen und Abgebaut.",
                 "&8Klick: öffnen"
@@ -91,6 +106,59 @@ final class ManagementHubGui implements Listener {
         if (playOpenSound) {
             GuiSounds.open(player);
         }
+    }
+
+    private void openCreated(Player player) {
+        openCreated(player, 0);
+    }
+
+    private void openCreated(Player player, int requestedPage) {
+        List<CreatedEntry> entries = createdEntries();
+        int pageCount = pageCount(entries.size(), CREATED_SLOTS.length);
+        int page = clampPage(requestedPage, pageCount);
+
+        GuiHolder holder = new GuiHolder(Screen.CREATED, page, null);
+        Inventory inventory = Bukkit.createInventory(holder, SIZE, LEGACY.deserialize("&8Erstellte Hologramme"));
+        holder.inventory = inventory;
+
+        fill(inventory);
+        inventory.setItem(4, item(Material.ARMOR_STAND, "&e&lErstellte Hologramme", List.of(
+                "&7Alle gespeicherten Hologramme an einem Ort.",
+                "&7Anzahl: &f" + entries.size(),
+                "",
+                "&8Klick auf einen Eintrag: löschen"
+        )));
+
+        if (entries.isEmpty()) {
+            inventory.setItem(22, item(Material.RED_STAINED_GLASS_PANE, "&cKeine Hologramme vorhanden", List.of(
+                    "&7Es wurde noch nichts erstellt."
+            )));
+        } else {
+            int startIndex = page * CREATED_SLOTS.length;
+            for (int index = 0; index < CREATED_SLOTS.length && startIndex + index < entries.size(); index++) {
+                inventory.setItem(CREATED_SLOTS[index], createdItem(entries.get(startIndex + index)));
+            }
+        }
+
+        addPagination(inventory, page, pageCount);
+        inventory.setItem(45, item(Material.COMPASS, "&7TopList Startseite", List.of("&8Klick: zurück")));
+        inventory.setItem(53, item(Material.BARRIER, "&cSchließen", List.of("&8Klick: Menü schließen")));
+        player.openInventory(inventory);
+    }
+
+    private void openDeleteConfirm(Player player, CreatedEntry entry, int page) {
+        GuiHolder holder = new GuiHolder(Screen.CONFIRM_DELETE, page, entry);
+        Inventory inventory = Bukkit.createInventory(holder, 27, LEGACY.deserialize("&8Löschen bestätigen"));
+        holder.inventory = inventory;
+
+        fill(inventory);
+        inventory.setItem(18, item(Material.COMPASS, "&7Zurück", List.of("&8Klick: zurück")));
+        inventory.setItem(13, createdItem(entry));
+        inventory.setItem(15, item(Material.RED_CONCRETE, "&cEndgültig löschen", List.of(
+                "&7Entfernt Hologramm und JSON-Datei.",
+                "&8Klick: löschen"
+        )));
+        player.openInventory(inventory);
     }
 
     void openSettings(Player player) {
@@ -142,8 +210,19 @@ final class ManagementHubGui implements Listener {
             handleSettingsClick(player, slot);
             return;
         }
+        if (holder.screen == Screen.CREATED) {
+            handleCreatedClick(player, slot, holder.page);
+            return;
+        }
+        if (holder.screen == Screen.CONFIRM_DELETE) {
+            handleDeleteConfirmClick(player, slot, holder.page, holder.entry);
+            return;
+        }
 
-        if (slot == 19) {
+        if (slot == 13) {
+            GuiSounds.click(player);
+            openCreated(player);
+        } else if (slot == 19) {
             GuiSounds.click(player);
             topListManagementGui.openMain(player);
         } else if (slot == 21) {
@@ -217,6 +296,55 @@ final class ManagementHubGui implements Listener {
         }
     }
 
+    private void handleCreatedClick(Player player, int slot, int page) {
+        List<CreatedEntry> entries = createdEntries();
+        int pageCount = pageCount(entries.size(), CREATED_SLOTS.length);
+        if (slot == 45) {
+            GuiSounds.click(player);
+            open(player);
+            return;
+        }
+        if (slot == 48 && page > 0) {
+            GuiSounds.page(player);
+            openCreated(player, page - 1);
+            return;
+        }
+        if (slot == 50 && page + 1 < pageCount) {
+            GuiSounds.page(player);
+            openCreated(player, page + 1);
+            return;
+        }
+        if (slot == 53) {
+            GuiSounds.close(player);
+            player.closeInventory();
+            return;
+        }
+
+        CreatedEntry entry = entryBySlot(entries, slot, page);
+        if (entry != null) {
+            GuiSounds.click(player);
+            openDeleteConfirm(player, entry, page);
+        }
+    }
+
+    private void handleDeleteConfirmClick(Player player, int slot, int page, CreatedEntry entry) {
+        if (slot == 18) {
+            GuiSounds.click(player);
+            openCreated(player, page);
+            return;
+        }
+        if (slot == 15 && entry != null) {
+            if (delete(entry)) {
+                GuiSounds.success(player);
+                player.sendMessage(component("&aHologramm &e" + entry.name() + " &awurde gelöscht."));
+            } else {
+                GuiSounds.error(player);
+                player.sendMessage(component("&cDieses Hologramm wurde nicht gefunden."));
+            }
+            openCreated(player, page);
+        }
+    }
+
     private ItemStack doubleSidedItem() {
         boolean allEnabled = allDoubleSided();
         boolean anyEnabled = topListManager.doubleSidedHolograms()
@@ -238,6 +366,98 @@ final class ManagementHubGui implements Listener {
                 && freeHologramService.doubleSidedHolograms();
     }
 
+    private List<CreatedEntry> createdEntries() {
+        List<CreatedEntry> entries = new ArrayList<>();
+        for (TopListType type : TopListType.values()) {
+            HologramService service = topListManager.service(type);
+            for (StoredHologram hologram : service.holograms()) {
+                entries.add(new CreatedEntry(CreatedKind.TOPLIST, type, hologram.name(), hologram));
+            }
+        }
+        for (StoredHologram hologram : tutorialHologramService.holograms()) {
+            entries.add(new CreatedEntry(CreatedKind.TUTORIAL, null, hologram.name(), hologram));
+        }
+        for (StoredHologram hologram : freeHologramService.holograms()) {
+            entries.add(new CreatedEntry(CreatedKind.FREE, null, hologram.name(), hologram));
+        }
+        return entries;
+    }
+
+    private CreatedEntry entryBySlot(List<CreatedEntry> entries, int slot, int page) {
+        int index = slotIndex(CREATED_SLOTS, slot);
+        if (index < 0) {
+            return null;
+        }
+        index += page * CREATED_SLOTS.length;
+        if (index >= entries.size()) {
+            return null;
+        }
+        return entries.get(index);
+    }
+
+    private int slotIndex(int[] slots, int slot) {
+        for (int index = 0; index < slots.length; index++) {
+            if (slots[index] == slot) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private boolean delete(CreatedEntry entry) {
+        return switch (entry.kind()) {
+            case TOPLIST -> topListManager.service(entry.type()).delete(entry.name());
+            case TUTORIAL -> tutorialHologramService.delete(entry.name());
+            case FREE -> freeHologramService.delete(entry.name());
+        };
+    }
+
+    private ItemStack createdItem(CreatedEntry entry) {
+        StoredHologram hologram = entry.hologram();
+        List<String> lore = new ArrayList<>();
+        lore.add("&7Bereich: &f" + entry.sourceName());
+        lore.add("&7Welt: &f" + hologram.world());
+        lore.add("&7X/Y/Z: &f" + coordinate(hologram.x()) + "&7, &f" + coordinate(hologram.y()) + "&7, &f" + coordinate(hologram.z()));
+        lore.add("&7Yaw/Pitch: &f" + coordinate(hologram.yaw()) + "&7, &f" + coordinate(hologram.pitch()));
+        if (entry.kind() != CreatedKind.TOPLIST) {
+            lore.add("&7Vorlage: &f" + hologram.templateName());
+        }
+        lore.add("");
+        lore.add("&8Klick: Löschbestätigung öffnen");
+        return item(entry.icon(), "&e" + entry.name(), lore);
+    }
+
+    private void addPagination(Inventory inventory, int page, int pageCount) {
+        boolean hasPrevious = page > 0;
+        boolean hasNext = page + 1 < pageCount;
+        inventory.setItem(48, item(
+                hasPrevious ? Material.ARROW : Material.RED_STAINED_GLASS_PANE,
+                hasPrevious ? "&eVorherige Seite" : "&cKeine vorherige Seite",
+                hasPrevious ? List.of("&7Gehe zu Seite &f" + page + "&7/&f" + pageCount) : List.of()
+        ));
+        inventory.setItem(49, item(Material.MAP, "&eSeite &f" + (page + 1) + "&7/&f" + pageCount, List.of(
+                "&7Weitere Einträge werden über",
+                "&7die Pfeile daneben angezeigt."
+        )));
+        inventory.setItem(50, item(
+                hasNext ? Material.ARROW : Material.RED_STAINED_GLASS_PANE,
+                hasNext ? "&eNächste Seite" : "&cKeine nächste Seite",
+                hasNext ? List.of("&7Gehe zu Seite &f" + (page + 2) + "&7/&f" + pageCount) : List.of()
+        ));
+    }
+
+    private int pageCount(int totalEntries, int entriesPerPage) {
+        return Math.max(1, (int) Math.ceil(totalEntries / (double) entriesPerPage));
+    }
+
+    private int clampPage(int page, int pageCount) {
+        return Math.max(0, Math.min(page, pageCount - 1));
+    }
+
+    private String coordinate(double value) {
+        return String.format(Locale.US, "%.2f", value);
+    }
+
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getInventory().getHolder() instanceof GuiHolder holder) {
@@ -246,10 +466,11 @@ final class ManagementHubGui implements Listener {
     }
 
     private void fill(Inventory inventory) {
-        ItemStack filler = item(Material.GRAY_STAINED_GLASS_PANE, " ", List.of());
-        for (int slot = 0; slot < inventory.getSize(); slot++) {
-            inventory.setItem(slot, filler);
-        }
+        GuiLayout.fill(
+                inventory,
+                item(Material.BLACK_STAINED_GLASS_PANE, " ", List.of()),
+                item(Material.GRAY_STAINED_GLASS_PANE, " ", List.of())
+        );
     }
 
     private ItemStack item(Material material, String name, List<String> lore) {
@@ -268,16 +489,56 @@ final class ManagementHubGui implements Listener {
 
     private enum Screen {
         MAIN,
-        SETTINGS
+        SETTINGS,
+        CREATED,
+        CONFIRM_DELETE
+    }
+
+    private enum CreatedKind {
+        TOPLIST,
+        TUTORIAL,
+        FREE
+    }
+
+    private record CreatedEntry(CreatedKind kind, TopListType type, String name, StoredHologram hologram) {
+
+        String sourceName() {
+            return switch (kind) {
+                case TOPLIST -> type.displayName() + "-Topliste";
+                case TUTORIAL -> "Tutorial-Hologramm";
+                case FREE -> "Freies Hologramm";
+            };
+        }
+
+        Material icon() {
+            if (kind != CreatedKind.TOPLIST) {
+                return kind == CreatedKind.TUTORIAL ? Material.LECTERN : Material.END_CRYSTAL;
+            }
+            return switch (type) {
+                case MONEY -> Material.EMERALD;
+                case PLAYTIME -> Material.CLOCK;
+                case KILLS -> Material.DIAMOND_SWORD;
+                case WALKED -> Material.LEATHER_BOOTS;
+                case MINED -> Material.DIAMOND_PICKAXE;
+            };
+        }
     }
 
     private static final class GuiHolder implements InventoryHolder {
 
         private final Screen screen;
+        private final int page;
+        private final CreatedEntry entry;
         private Inventory inventory;
 
         private GuiHolder(Screen screen) {
+            this(screen, 0, null);
+        }
+
+        private GuiHolder(Screen screen, int page, CreatedEntry entry) {
             this.screen = screen;
+            this.page = page;
+            this.entry = entry;
         }
 
         @Override
